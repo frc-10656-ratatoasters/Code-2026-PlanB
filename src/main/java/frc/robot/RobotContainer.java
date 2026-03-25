@@ -18,12 +18,15 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.intake.Intake;
+
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -35,15 +38,20 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
+  private final Intake intake;
+  private final Arm arm;
 
   // Controller
-  private final CommandXboxController controller = new CommandXboxController(0);
+  private final CommandXboxController DriveController = new CommandXboxController(0);
+  private final CommandXboxController OperatorController = new CommandXboxController(1);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    intake = new Intake();
+    arm = new Arm();
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
@@ -133,25 +141,33 @@ public class RobotContainer {
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive,
-            () -> -controller.getLeftY(),
-            () -> -controller.getLeftX(),
-            () -> -controller.getRightX()));
-
+            () -> -DriveController.getLeftY(),
+            () -> -DriveController.getLeftX(),
+            () -> -DriveController.getRightX()));
+    intake.setDefaultCommand(
+        intake.setIntakeSpeed(
+                () -> (-OperatorController.getRightY()/1.5),//lower speed, might change
+                intake));
+    arm.setDefaultCommand(
+        arm.manualArmCommand(
+                () -> (OperatorController.getLeftY()/2),
+                arm));
     // Lock to 0° when A button is held
-    controller
+    DriveController
         .a()
         .whileTrue(
             DriveCommands.joystickDriveAtAngle(
                 drive,
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX(),
+                () -> -DriveController.getLeftY(),
+                () -> -DriveController.getLeftX(),
                 () -> Rotation2d.kZero));
 
     // Switch to X pattern when X button is pressed
-    controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
-
+    DriveController.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+    OperatorController.rightTrigger().whileTrue(arm.extendArmCommand());
+    OperatorController.leftTrigger().whileTrue(arm.retractArmCommand());
     // Reset gyro to 0° when B button is pressed
-    controller
+    DriveController
         .b()
         .onTrue(
             Commands.runOnce(
