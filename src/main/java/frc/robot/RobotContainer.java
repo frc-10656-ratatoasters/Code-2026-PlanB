@@ -26,7 +26,6 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.intake.Intake;
-
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -146,15 +145,11 @@ public class RobotContainer {
             () -> -DriveController.getRightX()));
     intake.setDefaultCommand(
         intake.setIntakeSpeed(
-                () -> (-OperatorController.getRightY()/1.5),//lower speed, might change
-                intake));
-    arm.setDefaultCommand(
-        arm.manualArmCommand(
-                () -> (OperatorController.getLeftY()/2),
-                arm));
+            () -> (-OperatorController.getRightY() / 1.5), // lower speed, might change
+            intake));
+    arm.setDefaultCommand(arm.manualArmCommand(() -> (OperatorController.getLeftY() / 2), arm));
     // Lock to 0° when A button is held
-    DriveController
-        .a()
+    DriveController.a()
         .whileTrue(
             DriveCommands.joystickDriveAtAngle(
                 drive,
@@ -167,8 +162,7 @@ public class RobotContainer {
     OperatorController.rightTrigger().whileTrue(arm.extendArmCommand());
     OperatorController.leftTrigger().whileTrue(arm.retractArmCommand());
     // Reset gyro to 0° when B button is pressed
-    DriveController
-        .b()
+    DriveController.b()
         .onTrue(
             Commands.runOnce(
                     () ->

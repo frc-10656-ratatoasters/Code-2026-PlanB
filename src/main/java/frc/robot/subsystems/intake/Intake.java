@@ -1,19 +1,11 @@
 package frc.robot.subsystems.intake;
 
-import java.util.function.DoubleSupplier;
-
-import org.littletonrobotics.junction.AutoLog;
-import org.littletonrobotics.junction.AutoLogOutput;
-
-import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.NeutralModeValue;
-
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import java.util.function.DoubleSupplier;
 
 public class Intake extends SubsystemBase {
   // Add any necessary motor controllers, sensors, or other components here
@@ -25,7 +17,6 @@ public class Intake extends SubsystemBase {
     // Constructor for the Intake subsystem
     // Initialize components here
     intakeMotor = new TalonFX(51);
-
   }
 
   @Override
@@ -43,7 +34,7 @@ public class Intake extends SubsystemBase {
 
   // Add methods to control the intake subsystem
   public void intake() {
-    intakeMotor.set(1/2);
+    intakeMotor.set(1 / 2);
     // Code to start the intake mechanism
   }
 
@@ -52,7 +43,7 @@ public class Intake extends SubsystemBase {
   }
 
   public void outake() {
-    intakeMotor.set(-2/3);
+    intakeMotor.set(-2 / 3);
   }
 
   public void setStateToOuttake() {
